@@ -1,5 +1,7 @@
 const GITHUB_USERNAME = 'hyojun-edu';
-const state = { theme: localStorage.getItem('portfolio-theme') || 'light', projects: [], filter: 'all' };
+const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+const savedTheme = localStorage.getItem('portfolio-theme');
+const state = { theme: savedTheme || (systemThemeQuery.matches ? 'dark' : 'light'), projects: [], filter: 'all' };
 const select = (selector) => document.querySelector(selector);
 const selectAll = (selector) => document.querySelectorAll(selector);
 const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
@@ -60,6 +62,7 @@ const validateField = (field) => {
 applyTheme();
 startTyping();
 select('.theme-toggle').addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('portfolio-theme', state.theme); applyTheme(); });
+systemThemeQuery.addEventListener('change', ({ matches }) => { if (!localStorage.getItem('portfolio-theme')) { state.theme = matches ? 'dark' : 'light'; applyTheme(); } });
 select('.menu-toggle').addEventListener('click', (event) => { const menu = select('.nav-links'); const active = menu.classList.toggle('active'); event.currentTarget.setAttribute('aria-expanded', active); });
 selectAll('.nav-links a').forEach((link) => link.addEventListener('click', () => select('.nav-links').classList.remove('active')));
 select('.project-filters').addEventListener('click', (event) => { const button = event.target.closest('.filter-button'); if (!button) return; state.filter = button.dataset.filter; selectAll('.filter-button').forEach((item) => item.classList.remove('active')); button.classList.add('active'); renderProjects(); });
