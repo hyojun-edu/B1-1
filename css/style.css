@@ -16,7 +16,7 @@ button, input, textarea { font: inherit; }
 button { cursor: pointer; }
 .container { width: min(1120px, calc(100% - 2rem)); margin: 0 auto; }
 .site-header { position: fixed; z-index: 10; top: 0; width: 100%; transition: background .2s, box-shadow .2s; }
-.site-header.scrolled { background: var(--bg); box-shadow: 0 1px 0 var(--line); }
+.site-header.scrolled { background: var(--surface); box-shadow: 0 1px 0 var(--line); }
 .nav { min-height: 4.5rem; display: flex; align-items: center; justify-content: space-between; }
 .logo { font-size: 1.5rem; font-weight: 700; }
 .logo span, em { color: var(--accent); font-style: normal; }
