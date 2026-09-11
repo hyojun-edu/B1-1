@@ -3,6 +3,17 @@ const state = { theme: localStorage.getItem('portfolio-theme') || 'light', proje
 const select = (selector) => document.querySelector(selector);
 const selectAll = (selector) => document.querySelectorAll(selector);
 const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+const startTyping = () => {
+  const target = select('.typing-text');
+  const text = target.getAttribute('aria-label');
+  let index = 0;
+  const typeNextCharacter = () => {
+    target.textContent += text[index];
+    index += 1;
+    if (index < text.length) window.setTimeout(typeNextCharacter, 90);
+  };
+  typeNextCharacter();
+};
 const renderFilters = () => {
   const languages = [...new Set(state.projects.map(({ language }) => language).filter(Boolean))].sort();
   state.filter = 'all';
@@ -47,11 +58,12 @@ const validateField = (field) => {
   field.setAttribute('aria-invalid', Boolean(message)); return !message;
 };
 applyTheme();
+startTyping();
 select('.theme-toggle').addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('portfolio-theme', state.theme); applyTheme(); });
 select('.menu-toggle').addEventListener('click', (event) => { const menu = select('.nav-links'); const active = menu.classList.toggle('active'); event.currentTarget.setAttribute('aria-expanded', active); });
 selectAll('.nav-links a').forEach((link) => link.addEventListener('click', () => select('.nav-links').classList.remove('active')));
 select('.project-filters').addEventListener('click', (event) => { const button = event.target.closest('.filter-button'); if (!button) return; state.filter = button.dataset.filter; selectAll('.filter-button').forEach((item) => item.classList.remove('active')); button.classList.add('active'); renderProjects(); });
-select('.contact-form').addEventListener('submit', (event) => { event.preventDefault(); const fields = [...event.currentTarget.querySelectorAll('input, textarea')]; const valid = fields.map(validateField).every(Boolean); if (valid) { select('.form-success').textContent = '메시지가 준비되었습니다. 곧 연락드릴게요!'; event.currentTarget.reset(); } });
+select('.contact-form').addEventListener('submit', (event) => { event.preventDefault(); const fields = [...event.currentTarget.querySelectorAll('input, textarea')]; const valid = fields.map(validateField).every(Boolean); if (valid) { select('.form-success').textContent = '메시지가 전송되었습니다. 곧 연락드릴게요!'; event.currentTarget.reset(); } });
 selectAll('.field input, .field textarea').forEach((field) => field.addEventListener('input', () => validateField(field)));
 const observer = new IntersectionObserver((entries) => entries.forEach(({ isIntersecting, target }) => { if (isIntersecting) { target.classList.add('visible'); observer.unobserve(target); } }), { threshold: 0.2 });
 selectAll('.reveal').forEach((section) => observer.observe(section));
