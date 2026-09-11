@@ -59,6 +59,28 @@ const validateField = (field) => {
   select(`[data-error-for="${field.name}"]`).textContent = message;
   field.setAttribute('aria-invalid', Boolean(message)); return !message;
 };
+const handleFormSubmit = async (event) => {
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  const form = event.currentTarget;
+  const fields = [...form.querySelectorAll('input, textarea')];
+  const message = select('.form-success');
+  const submitButton = form.querySelector('button[type="submit"]');
+  if (!fields.map(validateField).every(Boolean)) return;
+  submitButton.disabled = true;
+  message.textContent = '메시지를 보내는 중입니다...';
+  try {
+    const response = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+    if (!response.ok) throw new Error('Formspree 전송 실패');
+    message.textContent = '메시지가 전송되었습니다. 감사합니다!';
+    form.reset();
+  } catch (error) {
+    message.textContent = '전송에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+  } finally {
+    submitButton.disabled = false;
+  }
+};
+select('.contact-form').addEventListener('submit', handleFormSubmit, true);
 applyTheme();
 startTyping();
 select('.theme-toggle').addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('portfolio-theme', state.theme); applyTheme(); });
