@@ -3,6 +3,11 @@ const state = { theme: localStorage.getItem('portfolio-theme') || 'light', proje
 const select = (selector) => document.querySelector(selector);
 const selectAll = (selector) => document.querySelectorAll(selector);
 const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+const renderFilters = () => {
+  const languages = [...new Set(state.projects.map(({ language }) => language).filter(Boolean))].sort();
+  state.filter = 'all';
+  select('.project-filters').innerHTML = ['all', ...languages].map((filter) => `<button class="filter-button${filter === 'all' ? ' active' : ''}" data-filter="${escapeHtml(filter)}">${filter === 'all' ? '전체' : escapeHtml(filter)}</button>`).join('');
+};
 
 const applyTheme = () => {
   document.documentElement.dataset.theme = state.theme;
@@ -15,7 +20,7 @@ const renderProjects = () => {
   const projects = state.filter === 'all' ? state.projects : state.projects.filter(({ language }) => language === state.filter);
   if (!projects.length) { grid.innerHTML = ''; select('.projects-state').innerHTML = '<p>표시할 프로젝트가 없습니다.</p>'; return; }
   select('.projects-state').innerHTML = '';
-  grid.innerHTML = projects.map(({ name, description, language, stargazers_count: stars, html_url: url }) => `<article class="project-card"><div class="project-card-top"><span>${escapeHtml(language || 'PROJECT')}</span><span>★ ${stars}</span></div><h3>${escapeHtml(name)}</h3><p>${escapeHtml(description || '새로운 가능성을 탐색한 프로젝트입니다.')}</p><div class="project-card-bottom"><span>GitHub Repository</span><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer" aria-label="${escapeHtml(name)} 저장소 열기">보기 ↗</a></div></article>`).join('');
+  grid.innerHTML = projects.map(({ name, description, language, stargazers_count: stars, html_url: url }) => `<article class="project-card"><div class="project-card-top"><span>${escapeHtml(language || 'PROJECT')}</span><span>★ ${stars}</span></div><h3>${escapeHtml(name)}</h3><p>${escapeHtml(description || '설명이 입력되어있지 않은 프로젝트입니다.')}</p><div class="project-card-bottom"><span>GitHub Repository</span><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer" aria-label="${escapeHtml(name)} 저장소 열기">보기 ↗</a></div></article>`).join('');
 };
 const loadProjects = async () => {
   const status = select('.projects-state');
@@ -25,8 +30,11 @@ const loadProjects = async () => {
     const response = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=12`);
     if (!response.ok) throw new Error(`GitHub API 오류: ${response.status}`);
     state.projects = await response.json();
+    renderFilters();
     renderProjects();
   } catch (error) {
+    state.projects = [];
+    renderFilters();
     status.innerHTML = '<p class="state-error">프로젝트를 불러올 수 없습니다. <button type="button" class="retry-button">다시 시도</button></p>';
     select('.retry-button').addEventListener('click', loadProjects);
   }
@@ -42,7 +50,7 @@ applyTheme();
 select('.theme-toggle').addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('portfolio-theme', state.theme); applyTheme(); });
 select('.menu-toggle').addEventListener('click', (event) => { const menu = select('.nav-links'); const active = menu.classList.toggle('active'); event.currentTarget.setAttribute('aria-expanded', active); });
 selectAll('.nav-links a').forEach((link) => link.addEventListener('click', () => select('.nav-links').classList.remove('active')));
-selectAll('.filter-button').forEach((button) => button.addEventListener('click', () => { state.filter = button.dataset.filter; selectAll('.filter-button').forEach((item) => item.classList.remove('active')); button.classList.add('active'); renderProjects(); }));
+select('.project-filters').addEventListener('click', (event) => { const button = event.target.closest('.filter-button'); if (!button) return; state.filter = button.dataset.filter; selectAll('.filter-button').forEach((item) => item.classList.remove('active')); button.classList.add('active'); renderProjects(); });
 select('.contact-form').addEventListener('submit', (event) => { event.preventDefault(); const fields = [...event.currentTarget.querySelectorAll('input, textarea')]; const valid = fields.map(validateField).every(Boolean); if (valid) { select('.form-success').textContent = '메시지가 준비되었습니다. 곧 연락드릴게요!'; event.currentTarget.reset(); } });
 selectAll('.field input, .field textarea').forEach((field) => field.addEventListener('input', () => validateField(field)));
 const observer = new IntersectionObserver((entries) => entries.forEach(({ isIntersecting, target }) => { if (isIntersecting) { target.classList.add('visible'); observer.unobserve(target); } }), { threshold: 0.2 });
