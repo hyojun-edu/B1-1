@@ -31,10 +31,14 @@ GitHub 저장소의 Settings → Pages에서 `main` 브랜치의 루트 폴더�
 - 배포 URL: `https://본인아이디.github.io/저장소명/`
 
 ## 스크린샷
+- 데스크톱 화면
+<img width="1912" height="1152" alt="desktop" src="https://github.com/user-attachments/assets/c8ccc62f-c22a-44b0-b5e9-024d7b1f2144" />
 
-배포 후 데스크톱, 모바일, 다크 모드 화면을 캡처해 아래에 추가합니다.
+- 모바일 화면 (라이트 모드)
+<img width="872" height="1152" alt="mobile" src="https://github.com/user-attachments/assets/dde15e0e-b2ff-48df-87f1-5c9eb8d7a86b" />
 
-<!-- 예: ![데스크톱 화면](images/screenshot-desktop.png) -->
+- 모바일 화면 (다크 모드)
+<img width="872" height="1152" alt="dark_mode" src="https://github.com/user-attachments/assets/8185ba77-e0bd-4b01-ac12-fc9080e2c82d" />
 
 ## 구현 설계와 학습 내용
 
